@@ -6,8 +6,8 @@
 //   ・12秒ごとに ping。30秒なにも届かなければ張りなおす。画面がうしろのあいだは ping しない（サーバーは「見ていない」とみなす）
 //   ・切断が1.5秒続いたら帯を出す（すぐ戻る切断ではちらつかせない）
 //   ・送るのは emit()（send という名前はボタンの変数とぶつかりやすいので使わない）
-import { VERSION } from './version.js?v=0.1.0';
-import { WS_URL, API_ORIGIN } from './config.js?v=0.1.0';
+import { VERSION } from './version.js?v=0.1.1';
+import { WS_URL, API_ORIGIN } from './config.js?v=0.1.1';
 
 export class Net {
   constructor(h) {

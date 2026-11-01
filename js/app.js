@@ -1,8 +1,9 @@
 // 民意の人生の画面
-import { VERSION } from './version.js?v=0.1.0';
-import { Net, getJSON } from './net.js?v=0.1.0';
-import { PAGE_URL, HASHTAG } from './config.js?v=0.1.0';
-import { avatarSVG } from './avatar.js?v=0.1.0';
+import { VERSION } from './version.js?v=0.1.1';
+import { Net, getJSON } from './net.js?v=0.1.1';
+import { PAGE_URL, HASHTAG } from './config.js?v=0.1.1';
+import { avatarSVG } from './avatar.js?v=0.1.1';
+import { entryCard, lifeCard, cardBoxes } from './share-card.js?v=0.1.1';
 
 // ---------- 小さな道具 ----------
 
@@ -137,30 +138,95 @@ function shareTextOf(e) {
   return `民意で${nm}（${e.age}）は${e.share} #${HASHTAG}`;
 }
 
-function xUrl(text) {
-  return `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(PAGE_URL)}`;
+function lifeShareText(sm) {
+  return `民意で生きた${sm.sei}${sm.name || ''}、享年${sm.age}。「${sm.epitaph}」 #${HASHTAG}`;
+}
+
+function xUrl(text, url = PAGE_URL) {
+  return `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+}
+
+// 物語の1場面の共有（カードの本人は、押したときの名札から。物語はいまの人生のぶんだけなので同じ人）
+function entryShare(e) {
+  return {
+    text: shareTextOf(e),
+    card: () => {
+      const h = S.head || {};
+      return entryCard(e, { sei: h.sei, name: h.name, yomi: h.yomi, gender: h.gender, gen: h.gen || S.gen });
+    },
+    file: `min-i-${S.head?.gen || S.gen}-${e.k}.png`,
+  };
 }
 
 // X の投稿画面は、スクリプトで開かずに「人が押したリンク」で開く（iPhone でアプリに渡すため）
-function shareTools(text) {
-  const x = el('a', { href: xUrl(text), class: 'share-x', rel: 'noopener' }, 'Xに投稿');
+// 「共有」は画像つきの共有の窓を開く
+function shareTools({ text, url = PAGE_URL, card, file }) {
+  const x = el('a', { href: xUrl(text, url), class: 'share-x', rel: 'noopener' }, 'Xに投稿');
   if (!IS_MOBILE) x.target = '_blank';
-  const more = el('button', {
-    class: 'share-more', type: 'button',
-    onclick: async () => {
-      if (navigator.share) {
-        try { await navigator.share({ text, url: PAGE_URL }); } catch {}
-        return;
-      }
-      try {
-        await navigator.clipboard.writeText(`${text} ${PAGE_URL}`);
-        toast('共有の文をコピーしました');
-      } catch {
-        toast('コピーできませんでした');
-      }
-    },
-  }, '共有');
+  const more = el('button', { class: 'share-more', type: 'button', onclick: () => openShare({ text, url, card, file }) }, '共有');
   return el('div', { class: 'tools' }, x, more);
+}
+
+// ---------- 共有の窓（画像つき） ----------
+// 1回目のタップで窓を開いて、その場でカードの画像を作り、保存のリンク（<a download>）に先に入れておく
+// 2回目のタップは、ふつうのリンクとしてダウンロード（押してから画像を作らない）
+const SH = { token: 0, objUrl: '' };
+
+function openShare({ text, url = PAGE_URL, card, file }) {
+  const tok = ++SH.token;
+  dropShareImage();
+  const full = `${text}\n${url}`;
+  const prev = el('div', { class: 'share-prev' }, el('span', { class: 'wait', text: '画像を作っています…' }));
+  // 画像ができたら「画像を保存」に入れかえる場所
+  const slot = el('button', { class: 'btn main', type: 'button', disabled: true }, '画像を作っています…');
+  const note = el('p', { class: 'share-note', text: '保存した画像は投稿に添付できます' });
+  const x = el('a', { class: 'btn share-x-btn', href: xUrl(text, url), rel: 'noopener' }, 'X でポスト');
+  if (!IS_MOBILE) x.target = '_blank';
+  $('#share-body').replaceChildren(
+    prev,
+    el('p', { class: 'share-text' }, text, el('small', { text: url })),
+    el('div', { class: 'share-btns' },
+      slot,
+      note,
+      x,
+      el('button', { class: 'btn', type: 'button', onclick: () => copyText(full) }, '文とURLをコピー'),
+      el('button', { class: 'btn', type: 'button', onclick: closeShare }, '閉じる'),
+    ),
+  );
+  $('#share').hidden = false;
+  $('#share-body').scrollTop = 0;
+  Promise.resolve().then(card).then((blob) => {
+    if (tok !== SH.token) return;
+    SH.objUrl = URL.createObjectURL(blob);
+    prev.replaceChildren(el('img', { src: SH.objUrl, alt: '共有する画像', width: '1200', height: '630' }));
+    slot.replaceWith(el('a', { class: 'btn main share-save', href: SH.objUrl, download: file }, '画像を保存'));
+  }).catch(() => {
+    if (tok !== SH.token) return;
+    prev.replaceChildren(el('span', { class: 'wait', text: '画像を作れませんでした' }));
+    slot.remove();
+    note.remove();
+  });
+}
+
+async function copyText(s) {
+  try {
+    await navigator.clipboard.writeText(s);
+    toast('共有の文をコピーしました');
+  } catch {
+    toast('コピーできませんでした');
+  }
+}
+
+function dropShareImage() {
+  if (SH.objUrl) URL.revokeObjectURL(SH.objUrl);
+  SH.objUrl = '';
+}
+
+function closeShare() {
+  SH.token++;
+  $('#share').hidden = true;
+  $('#share-body').replaceChildren();
+  dropShareImage();
 }
 
 // ---------- 物語 ----------
@@ -194,7 +260,7 @@ function entryEl(e) {
     verdictEl(e),
     e.pre ? el('p', { class: e.rebel ? 'pre rebel' : 'pre', text: e.pre }) : null,
     el('p', { class: 'res', text: e.res }),
-    e.share ? shareTools(shareTextOf(e)) : null,
+    e.share ? shareTools(entryShare(e)) : null,
   );
 }
 
@@ -234,7 +300,7 @@ function summaryEl(sm, { share = true } = {}) {
   }
   if (sm.timeline?.length) kids.push(el('h4', { text: '年表' }), el('ul', { class: 'tl' }, sm.timeline.map((t) => el('li', {}, el('span', { class: 'a', text: `${t.age}歳` }), el('span', {}, el('span', { class: 't', text: t.t }), el('small', { text: t.d || '' }))))));
   if (sm.cast?.length) kids.push(el('h4', { text: '登場人物' }), castList(sm.cast));
-  if (share) kids.push(shareTools(`民意で生きた${sm.sei}${sm.name || ''}、享年${sm.age}。「${sm.epitaph}」 #${HASHTAG}`));
+  if (share) kids.push(shareTools({ text: lifeShareText(sm), card: () => lifeCard(sm), file: `min-i-life-${sm.gen}.png` }));
   return el('article', { class: 'summary', id: share ? 'summary' : null }, ...kids);
 }
 
@@ -540,13 +606,9 @@ async function loadLife(gen) {
   );
 }
 
+// 歴代の人生は、その人のまとめへのリンクで共有する
 function shareToolsLife(sm) {
-  const t = shareTools(`民意で生きた${sm.sei}${sm.name || ''}、享年${sm.age}。「${sm.epitaph}」 #${HASHTAG}`);
-  // 歴代の人生は、その人のまとめへのリンクで共有する
-  const url = `${PAGE_URL}?life=${sm.gen}`;
-  const x = t.querySelector('.share-x');
-  x.href = `https://x.com/intent/post?text=${encodeURIComponent(`民意で生きた${sm.sei}${sm.name || ''}、享年${sm.age}。「${sm.epitaph}」 #${HASHTAG}`)}&url=${encodeURIComponent(url)}`;
-  return t;
+  return shareTools({ text: lifeShareText(sm), url: `${PAGE_URL}?life=${sm.gen}`, card: () => lifeCard(sm), file: `min-i-life-${sm.gen}.png` });
 }
 
 function aboutEl() {
@@ -568,7 +630,14 @@ function aboutEl() {
 document.querySelectorAll('#menu button').forEach((b) => b.addEventListener('click', () => openSheet(b.dataset.sheet)));
 $('#sheet-close').addEventListener('click', closeSheet);
 $('#sheet').addEventListener('click', (e) => { if (e.target.id === 'sheet') closeSheet(); });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#sheet').hidden) closeSheet(); });
+$('#share-close').addEventListener('click', closeShare);
+$('#share').addEventListener('click', (e) => { if (e.target.id === 'share') closeShare(); });
+// Esc は上に重なっているほうから閉じる（共有の窓 → 重ねる画面）
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  if (!$('#share').hidden) closeShare();
+  else if (!$('#sheet').hidden) closeSheet();
+});
 $('#jump').addEventListener('click', () => toBottom());
 story().addEventListener('scroll', () => {
   // 自動で下へ動かしたときのスクロールは数えない（人が動かしたときだけ、ついていくかを決めなおす）
@@ -588,4 +657,4 @@ else if (!LS.get('mj-about')) {
 net.connect();
 
 // テストと、困ったときに見る用
-window.mj = { S, net, renderStory, renderVote, openSheet };
+window.mj = { S, net, renderStory, renderVote, openSheet, openShare, entryShare, card: { entryCard, lifeCard, cardBoxes } };

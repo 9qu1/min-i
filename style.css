@@ -196,8 +196,8 @@ a { color: var(--accent-2); }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-/* ---------- 重ねる画面（年表・登場人物・歴代・遊び方） ---------- */
-#sheet { position: fixed; inset: 0; z-index: 20; background: rgba(40, 30, 25, .42); display: flex; align-items: flex-end; justify-content: center; }
+/* ---------- 重ねる画面（年表・登場人物・歴代・遊び方）と共有の窓（その上に重ねる） ---------- */
+#sheet, #share { position: fixed; inset: 0; z-index: 20; background: rgba(40, 30, 25, .42); display: flex; align-items: flex-end; justify-content: center; }
 .sheet-card {
   width: 100%; max-width: 720px; max-height: 88vh; max-height: 88dvh; background: var(--paper); border-radius: 16px 16px 0 0;
   display: flex; flex-direction: column; box-shadow: var(--shadow);
@@ -205,7 +205,7 @@ a { color: var(--accent-2); }
 .sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px 8px; border-bottom: 1px solid var(--line); }
 .sheet-head h2 { margin: 0; font-family: var(--serif); font-size: 18px; }
 .sheet-head .close { border: none; background: var(--paper-2); width: 36px; height: 36px; border-radius: 50%; font-size: 20px; line-height: 1; }
-#sheet-body { overflow-y: auto; padding: 12px 16px calc(20px + var(--safe-bottom)); }
+#sheet-body, #share-body { overflow-y: auto; padding: 12px 16px calc(20px + var(--safe-bottom)); }
 .tl { list-style: none; margin: 0; padding: 0; }
 .tl li { display: grid; grid-template-columns: 3.6em 1fr; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
 .tl li .a { color: var(--accent-2); font-weight: 700; text-align: right; }
@@ -232,10 +232,27 @@ a { color: var(--accent-2); }
 .btn { display: inline-block; border: 1px solid var(--line-2); background: var(--card); border-radius: 10px; padding: 8px 16px; font-size: 14px; }
 .btn.main { background: var(--accent); border-color: var(--accent); color: #FFF; }
 
+/* 共有の窓: カードの画像のプレビュー・共有の文・ボタン */
+#share { z-index: 25; }
+#share .sheet-card { max-width: 560px; }
+.share-prev {
+  width: 100%; aspect-ratio: 1200 / 630; border-radius: 10px; border: 1px solid var(--line-2); background: var(--paper-2);
+  display: grid; place-items: center; overflow: hidden;
+}
+.share-prev img { width: 100%; height: 100%; display: block; }
+.share-prev .wait { font-size: 13px; color: var(--ink-3); }
+.share-text { font-family: var(--serif); font-size: 14.5px; line-height: 1.7; margin: 10px 2px 12px; overflow-wrap: anywhere; }
+.share-text small { display: block; font-family: var(--sans); font-size: 12px; color: var(--ink-3); }
+.share-btns { display: grid; gap: 8px; }
+.share-btns .btn { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 44px; text-align: center; text-decoration: none; color: var(--ink); overflow-wrap: anywhere; }
+.share-btns .btn.main { color: #FFF; font-weight: 700; }
+.share-btns .btn:disabled { opacity: .6; cursor: default; }
+.share-note { margin: -4px 0 0; font-size: 11.5px; color: var(--ink-3); text-align: center; }
+
 @media (min-width: 760px) {
   #app { border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
   .sheet-card { border-radius: 16px; margin-bottom: 4vh; }
-  #sheet { align-items: center; }
+  #sheet, #share { align-items: center; }
 }
 @media (max-width: 360px) {
   body { font-size: 14px; }
