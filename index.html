@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>民意の人生（仮）｜みんなの多数決で、ひとりの一生を決める</title>
+<meta name="description" content="日本中の人が、ひとりの人生を30秒ごとの多数決で決める。名前も、進路も、結婚も、最期の言葉も。亡くなると歴代の人生に残り、次の代が生まれる。登録なし・無料。">
+<meta property="og:title" content="民意の人生（仮）｜みんなの多数決で、ひとりの一生を決める">
+<meta property="og:description" content="名前も、進路も、結婚も、最期の言葉も。ひとりの人生を、みんなの多数決で決める。">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://9qu1.com/min-i/og.png">
+<meta property="og:url" content="https://9qu1.com/min-i/">
+<link rel="canonical" href="https://9qu1.com/min-i/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#FBF6EC">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700&family=Zen+Old+Mincho:wght@400;700&display=swap">
+<link rel="stylesheet" href="style.css?v=0.1.0">
+</head>
+<body>
+<div id="app">
+  <header id="top">
+    <div class="tag">
+      <div id="ava" class="ava" aria-hidden="true"></div>
+      <div class="who">
+        <div class="nm"><b id="h-name">　</b><small id="h-yomi"></small></div>
+        <div class="sub"><span id="h-age">0歳</span><span class="sep">・</span><span id="h-stage">幼少期</span><span class="sep">・</span><span id="h-gen">1代目</span></div>
+      </div>
+      <div class="people" id="h-people" title="いまこの人生を決めている人の数"><span class="live"></span><b id="h-viewers">0</b><small>人で決定中</small></div>
+    </div>
+    <div class="bars" id="h-bars">
+      <div class="bar" data-k="health"><span class="lbl">健康</span><span class="track"><i></i></span></div>
+      <div class="bar" data-k="money"><span class="lbl">お金</span><span class="track"><i></i></span></div>
+      <div class="bar" data-k="happy"><span class="lbl">幸せ</span><span class="track"><i></i></span></div>
+      <div class="bar" data-k="bond"><span class="lbl">つながり</span><span class="track"><i></i></span></div>
+    </div>
+    <div class="chips" id="h-chips"></div>
+    <nav class="menu" id="menu">
+      <button data-sheet="timeline">年表</button>
+      <button data-sheet="cast">登場人物</button>
+      <button data-sheet="history">歴代の人生</button>
+      <button data-sheet="about">遊び方</button>
+    </nav>
+  </header>
+
+  <main id="story" aria-live="polite"></main>
+  <button id="jump" class="jump" hidden>↓ 新しい場面</button>
+
+  <section id="vote" aria-label="投票">
+    <div class="vh"><span id="v-when"></span><span class="timer" id="v-timer"><b id="v-sec">--</b><small>秒</small></span></div>
+    <div class="vprog"><i id="v-prog"></i></div>
+    <div id="v-choices" class="choices"></div>
+    <div id="v-note" class="vnote">押すと投票。締め切りまで何度でも変えられます</div>
+  </section>
+
+  <div id="netband" hidden></div>
+  <div id="toast" hidden></div>
+
+  <div id="sheet" hidden>
+    <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+      <div class="sheet-head"><h2 id="sheet-title"></h2><button class="close" id="sheet-close" aria-label="閉じる">×</button></div>
+      <div id="sheet-body"></div>
+    </div>
+  </div>
+</div>
+<script type="module" src="js/app.js?v=0.1.0"></script>
+</body>
+</html>

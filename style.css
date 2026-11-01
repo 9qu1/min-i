@@ -1,0 +1,262 @@
+/* 民意の人生の見た目（温かい紙・日記の雰囲気。物語は明朝、操作はゴシック） */
+:root {
+  --paper: #FBF6EC;
+  --paper-2: #F4ECDC;
+  --card: #FFFDF8;
+  --ink: #3B2F2A;
+  --ink-2: #6E5E54;
+  --ink-3: #9A8A7E;
+  --line: #E4D8C4;
+  --line-2: #D3C3A8;
+  --accent: #C8553D;
+  --accent-2: #A43F2B;
+  --accent-soft: #F6DED6;
+  --gold: #C99A2E;
+  --health: #6A994E;
+  --money: #D4A017;
+  --happy: #E07A5F;
+  --bond: #4D7EA8;
+  --ok: #3F7D5B;
+  --shadow: 0 4px 16px rgba(80, 55, 30, 0.12);
+  --serif: "Zen Old Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --sans: "Zen Kaku Gothic New", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", system-ui, sans-serif;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; background: var(--paper); color: var(--ink); }
+body { font-family: var(--sans); font-size: 15px; line-height: 1.6; -webkit-text-size-adjust: 100%; overscroll-behavior: none; }
+button { font: inherit; color: inherit; cursor: pointer; }
+a { color: var(--accent-2); }
+
+#app {
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  max-width: 720px;
+  margin: 0 auto;
+  background: var(--paper);
+  position: relative;
+}
+
+/* ---------- 上: 名札と状態 ---------- */
+#top {
+  padding: calc(8px + var(--safe-top)) 12px 6px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(var(--paper), var(--paper-2));
+  flex: none;
+}
+.tag { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.ava { width: 46px; height: 46px; flex: none; border-radius: 50%; box-shadow: 0 0 0 2px var(--card), 0 0 0 3px var(--line-2); }
+.ava svg { width: 100%; height: 100%; display: block; }
+.who { flex: 1; min-width: 0; }
+.nm { display: flex; align-items: baseline; gap: 6px; min-width: 0; white-space: nowrap; }
+.nm b { font-family: var(--serif); font-size: 19px; letter-spacing: .02em; overflow: hidden; text-overflow: ellipsis; }
+.nm small { color: var(--ink-3); font-size: 12px; overflow: hidden; text-overflow: ellipsis; }
+.sub { font-size: 12.5px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sub .sep { color: var(--line-2); margin: 0 1px; }
+#h-age { font-weight: 700; color: var(--ink); }
+.people {
+  flex: none; display: flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: 999px;
+  background: var(--card); border: 1px solid var(--line); font-size: 12px; white-space: nowrap;
+}
+.people b { font-size: 15px; }
+.people small { color: var(--ink-2); }
+.live { width: 7px; height: 7px; border-radius: 50%; background: #3FA36B; box-shadow: 0 0 0 3px rgba(63, 163, 107, .18); }
+
+.bars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 7px; }
+.bar { min-width: 0; }
+.bar .lbl { display: block; font-size: 10.5px; color: var(--ink-2); line-height: 1.2; white-space: nowrap; }
+.bar .track { display: block; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; margin-top: 2px; }
+.bar i { display: block; height: 100%; width: 50%; border-radius: 3px; transition: width .6s ease; }
+.bar[data-k="health"] i { background: var(--health); }
+.bar[data-k="money"] i { background: var(--money); }
+.bar[data-k="happy"] i { background: var(--happy); }
+.bar[data-k="bond"] i { background: var(--bond); }
+.bar.low .lbl { color: var(--accent-2); font-weight: 700; }
+
+.chips { display: flex; gap: 5px; margin-top: 6px; overflow: hidden; white-space: nowrap; min-height: 0; }
+.chips:empty { display: none; }
+.chip { font-size: 11px; padding: 1px 8px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--ink-2); flex: none; }
+.chip.rebel { border-color: #E9B7A9; background: var(--accent-soft); color: var(--accent-2); }
+
+.menu { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 7px; }
+.menu button {
+  border: 1px solid var(--line); background: var(--card); border-radius: 8px; padding: 4px 2px; font-size: 12.5px; color: var(--ink-2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 32px;
+}
+.menu button:active { background: var(--paper-2); }
+
+/* ---------- 真ん中: 物語 ---------- */
+#story {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 14px 16px 18px;
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.95;
+  line-break: strict;
+}
+.entry { margin: 0 0 20px; padding-bottom: 16px; border-bottom: 1px dashed var(--line); }
+.entry:last-child { border-bottom: none; }
+.entry .when { font-family: var(--sans); font-size: 12px; color: var(--ink-3); display: flex; gap: 8px; align-items: baseline; margin-bottom: 4px; }
+.entry .when .age { color: var(--accent-2); font-weight: 700; font-size: 13px; }
+.entry p { margin: 0 0 6px; }
+.entry .echo { font-size: 14.5px; color: var(--ink-2); font-style: normal; border-left: 3px solid var(--line-2); padding-left: 10px; margin-bottom: 8px; }
+.entry .verdict {
+  font-family: var(--sans); font-size: 12.5px; color: var(--ink-2); background: var(--card); border: 1px solid var(--line);
+  border-radius: 8px; padding: 5px 10px; margin: 8px 0; line-height: 1.5;
+}
+.entry .verdict b { color: var(--ink); }
+.entry .verdict .pct { color: var(--accent-2); font-weight: 700; }
+.entry .verdict.rebel { border-color: #E9B7A9; background: var(--accent-soft); }
+.entry .verdict.auto { border-style: dashed; }
+.entry .pre { color: var(--ink-2); }
+.entry .pre.rebel { color: var(--accent-2); font-weight: 700; }
+.entry .now-tag { font-size: 10.5px; color: #FFF; background: var(--accent); padding: 0 7px; border-radius: 999px; font-weight: 700; align-self: center; }
+.tools { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; font-family: var(--sans); }
+.tools a, .tools button {
+  font-size: 11.5px; border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 2px 10px; color: var(--ink-2); text-decoration: none;
+}
+.luck { font-family: var(--sans); font-size: 11px; padding: 0 6px; border-radius: 4px; margin-left: 4px; }
+.luck.ok { background: #E3F0E6; color: var(--ok); }
+.luck.ng { background: #F3E1DC; color: var(--accent-2); }
+
+.summary { background: var(--card); border: 1px solid var(--line-2); border-radius: 14px; padding: 18px 16px; box-shadow: var(--shadow); margin-bottom: 18px; }
+.summary h3 { margin: 0; font-size: 20px; text-align: center; }
+.summary .epi { text-align: center; color: var(--accent-2); margin: 6px 0 2px; font-size: 16px; }
+.summary .meta { text-align: center; font-family: var(--sans); font-size: 12.5px; color: var(--ink-2); }
+.summary h4 { font-family: var(--sans); font-size: 13px; color: var(--ink-3); margin: 16px 0 6px; border-bottom: 1px solid var(--line); padding-bottom: 2px; }
+.summary ul { margin: 0; padding: 0; list-style: none; font-size: 14.5px; }
+.summary li { margin: 0 0 6px; }
+.summary .num { font-family: var(--sans); display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 12px; }
+.summary .num div { text-align: center; background: var(--paper); border-radius: 8px; padding: 6px 2px; }
+.summary .num b { display: block; font-size: 18px; }
+.summary .num small { font-size: 11px; color: var(--ink-2); }
+.summary .tools { justify-content: center; margin-top: 14px; }
+.summary .tools a, .summary .tools button { font-size: 13px; padding: 5px 16px; }
+.titles { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-top: 8px; font-family: var(--sans); }
+.titles span { font-size: 11.5px; background: var(--paper-2); padding: 1px 8px; border-radius: 999px; }
+
+.jump {
+  position: absolute; left: 50%; transform: translateX(-50%); z-index: 5; border: none; border-radius: 999px; padding: 5px 14px;
+  background: var(--ink); color: var(--card); font-size: 12.5px; box-shadow: var(--shadow); width: max-content;
+}
+
+/* ---------- 下: いまの場面の投票 ---------- */
+#vote {
+  flex: none;
+  padding: 8px 12px calc(10px + var(--safe-bottom));
+  border-top: 1px solid var(--line-2);
+  background: var(--card);
+  box-shadow: 0 -4px 16px rgba(80, 55, 30, 0.08);
+}
+.vh { display: flex; justify-content: space-between; align-items: baseline; font-size: 12.5px; color: var(--ink-2); gap: 8px; }
+.vh #v-when { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.timer b { font-size: 18px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.timer.hurry b { color: var(--accent); }
+.vprog { height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; margin: 4px 0 8px; }
+.vprog i { display: block; height: 100%; width: 100%; background: var(--accent); transition: width .25s linear; }
+.choices { display: grid; gap: 7px; }
+.choice {
+  position: relative; display: flex; align-items: center; gap: 8px; width: 100%; min-height: 46px; padding: 8px 12px;
+  border: 1.5px solid var(--line-2); border-radius: 12px; background: var(--paper); text-align: left; overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+.choice .fill { position: absolute; inset: 0 auto 0 0; width: 0; background: #F1E3C9; transition: width .45s ease; z-index: 0; }
+.choice .lbl, .choice .pct, .choice .mine { position: relative; z-index: 1; }
+.choice .lbl { flex: 1; font-size: 15px; line-height: 1.35; min-width: 0; overflow-wrap: anywhere; }
+.choice .pct { flex: none; font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; min-width: 3.2em; text-align: right; }
+.choice .mine { flex: none; font-size: 11px; color: var(--card); background: var(--accent); border-radius: 999px; padding: 0 7px; display: none; white-space: nowrap; }
+.choice.on { border-color: var(--accent); background: #FFF6F1; }
+.choice.on .fill { background: #F5D5C8; }
+.choice.on .mine { display: inline-block; }
+.choice.busy { opacity: .6; }
+.choice.busy .mine { display: inline-block; background: var(--ink-3); }
+.choice:disabled { cursor: default; }
+.choice:active:not(:disabled) { transform: translateY(1px); }
+.vnote { font-size: 11.5px; color: var(--ink-3); text-align: center; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wait { text-align: center; font-size: 14px; color: var(--ink-2); padding: 10px 0 4px; }
+.wait b { font-size: 20px; color: var(--ink); }
+
+/* ---------- 帯・知らせ ---------- */
+#netband {
+  position: fixed; top: calc(6px + var(--safe-top)); left: 50%; transform: translateX(-50%); z-index: 30;
+  background: #4A3A33; color: #FFF8EE; font-size: 12.5px; padding: 5px 14px; border-radius: 999px; width: max-content; max-width: calc(100vw - 16px);
+  white-space: nowrap; box-shadow: var(--shadow);
+}
+#netband.back { background: var(--ok); }
+#toast {
+  position: fixed; left: 50%; bottom: calc(14px + var(--safe-bottom)); transform: translateX(-50%); z-index: 40; pointer-events: none;
+  background: rgba(59, 47, 42, .94); color: #FFF8EE; font-size: 13px; padding: 7px 14px; border-radius: 10px; width: max-content; max-width: calc(100vw - 16px);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ---------- 重ねる画面（年表・登場人物・歴代・遊び方） ---------- */
+#sheet { position: fixed; inset: 0; z-index: 20; background: rgba(40, 30, 25, .42); display: flex; align-items: flex-end; justify-content: center; }
+.sheet-card {
+  width: 100%; max-width: 720px; max-height: 88vh; max-height: 88dvh; background: var(--paper); border-radius: 16px 16px 0 0;
+  display: flex; flex-direction: column; box-shadow: var(--shadow);
+}
+.sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px 8px; border-bottom: 1px solid var(--line); }
+.sheet-head h2 { margin: 0; font-family: var(--serif); font-size: 18px; }
+.sheet-head .close { border: none; background: var(--paper-2); width: 36px; height: 36px; border-radius: 50%; font-size: 20px; line-height: 1; }
+#sheet-body { overflow-y: auto; padding: 12px 16px calc(20px + var(--safe-bottom)); }
+.tl { list-style: none; margin: 0; padding: 0; }
+.tl li { display: grid; grid-template-columns: 3.6em 1fr; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.tl li .a { color: var(--accent-2); font-weight: 700; text-align: right; }
+.tl li small { display: block; color: var(--ink-2); font-size: 12.5px; }
+.tl li.big .t { font-weight: 700; }
+.tl li.rebel small { color: var(--accent-2); }
+.cast { list-style: none; margin: 0; padding: 0; }
+.cast li { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.cast .n { font-family: var(--serif); font-size: 16px; }
+.cast .w { font-size: 12px; color: var(--ink-2); }
+.cast .rel { grid-column: 1 / -1; height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.cast .rel i { display: block; height: 100%; background: var(--happy); }
+.cast .st { font-size: 12px; color: var(--ink-3); text-align: right; white-space: nowrap; }
+.cast li.gone .n { color: var(--ink-3); }
+.lives { list-style: none; margin: 0; padding: 0; }
+.lives li { border-bottom: 1px solid var(--line); }
+.lives button { display: block; width: 100%; text-align: left; border: none; background: none; padding: 10px 2px; }
+.lives .n { font-family: var(--serif); font-size: 16px; }
+.lives .e { display: block; font-size: 12.5px; color: var(--accent-2); }
+.lives .m { display: block; font-size: 12px; color: var(--ink-3); }
+.empty { color: var(--ink-3); text-align: center; padding: 20px 0; font-size: 14px; }
+.about p { margin: 0 0 10px; font-size: 14.5px; }
+.about h3 { font-family: var(--serif); font-size: 16px; margin: 14px 0 6px; }
+.btn { display: inline-block; border: 1px solid var(--line-2); background: var(--card); border-radius: 10px; padding: 8px 16px; font-size: 14px; }
+.btn.main { background: var(--accent); border-color: var(--accent); color: #FFF; }
+
+@media (min-width: 760px) {
+  #app { border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
+  .sheet-card { border-radius: 16px; margin-bottom: 4vh; }
+  #sheet { align-items: center; }
+}
+@media (max-width: 360px) {
+  body { font-size: 14px; }
+  #story { font-size: 15px; padding: 12px 13px 14px; }
+  .people small { display: none; }
+  .people::after { content: "人"; font-size: 12px; color: var(--ink-2); }
+  .menu button { font-size: 11.5px; }
+  .choice .lbl { font-size: 14px; }
+}
+/* 背の低い画面（iPhone SE など）: 物語の場所を広くとる */
+@media (max-height: 640px) {
+  .chips { display: none; }
+  .bars { margin-top: 5px; }
+  .menu { margin-top: 5px; }
+  .menu button { min-height: 28px; padding: 2px; }
+  #vote { padding-top: 6px; }
+  .choices { gap: 5px; }
+  .choice { min-height: 40px; padding: 6px 10px; }
+  .choice .lbl { font-size: 14px; }
+  .vnote { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bar i, .choice .fill, .vprog i { transition: none; }
+}
